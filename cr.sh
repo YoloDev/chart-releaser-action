@@ -309,8 +309,7 @@ update_index() {
         git add index.yaml
         git commit -m 'Update index.yaml'
         GIT_TRACE=1 GIT_TRANSFER_TRACE=1 GIT_CURL_VERBOSE=1 git \
-            -c "http.https://github.com/.extraheader=" \
-            -c http.extraheader="AUTHORIZATION: Bearer $PAT" \
+            -c "http.https://github.com/.extraheader=AUTHORIZATION: Bearer $PAT" \
             push
     else
         echo 'Index not updated, skipping commit'
