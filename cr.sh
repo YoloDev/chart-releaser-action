@@ -69,7 +69,7 @@ main() {
         mkdir -p .cr-release-packages
 
         rm -rf .cr-index
-        mkdir -p .cr-index
+        #mkdir -p .cr-index
 
         for chart in "${changed_charts[@]}"; do
             if [[ -d "$chart" ]]; then
@@ -286,10 +286,11 @@ release_charts() {
 }
 
 update_index() {
-    git remote add charts-index "https://$index_owner:${CR_INDEX_TOKEN:=$CR_TOKEN}@github.com/$index_owner/$index_repo.git"
-    git fetch charts-index gh-pages
+    # git remote add charts-index "https://$index_owner:${CR_INDEX_TOKEN:=$CR_TOKEN}@github.com/$index_owner/$index_repo.git"
+    # git fetch charts-index gh-pages
+    git clone -–depth 0 "https://$index_owner:${CR_INDEX_TOKEN:=$CR_TOKEN}@github.com/$index_owner/$index_repo.git" .cr-index
 
-    local args=(-o "$owner" -r "$repo" -c "$charts_repo_url" --remote charts-index --push)
+    local args=(-o "$owner" -r "$repo" -c "$charts_repo_url" --remote charts-index)
     if [[ -n "$config" ]]; then
         args+=(--config "$config")
     fi
@@ -297,7 +298,17 @@ update_index() {
     echo 'Updating charts repo index...'
     cr index "${args[@]}"
 
-    git remote remove charts-index
+    # git remote remove charts-index
+    pushd .cr-index
+    if ! git diff --quiet; then
+        echo 'Index updated, creating commit and pushing changes'
+        git add index.yaml
+        git commit -m 'Update index.yaml'
+        git push
+    else
+        echo 'Index not updated, skipping commit'
+    fi
+    popd
 }
 
 main "$@"
