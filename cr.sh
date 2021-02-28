@@ -300,6 +300,7 @@ update_index() {
 
     # git remote remove charts-index
     pushd .cr-index
+    git diff # for debugging only
     if ! git diff --quiet; then
         echo 'Index updated, creating commit and pushing changes'
         git add index.yaml
