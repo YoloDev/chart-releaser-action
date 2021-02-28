@@ -24,6 +24,12 @@ inputs:
   repo:
     description: 'The GitHub repo, without owner (default: current repository owner)'
     required: false
+  index_owner:
+    description: 'The GitHub charts repo owner, either user or organization (default: current repository owner)'
+    required: false
+  index_repo:
+    description: 'The GitHub charts repo, without owner (default: current repository owner)'
+    required: false
 runs:
   using: composite
   steps:
@@ -39,7 +45,19 @@ runs:
             repo="${{ inputs.repo }}"
         fi
 
-        args=(--owner "$owner" --repo "$repo")
+        if [[ -n "${{ inputs.index_owner }}" ]]; then
+            index_owner="${{ inputs.index_owner }}"
+        else
+            index_owner="$owner"
+        fi
+
+        if [[ -n "${{ inputs.index_repo }}" ]]; then
+            index_repo="${{ inputs.index_repo }}"
+        else
+            index_repo="$repo"
+        fi
+
+        args=(--owner "$owner" --repo "$repo" --index-repo "$index_repo" --index-owner "$index_owner")
         args+=(--charts-dir "${{ inputs.charts_dir }}")
 
         if [[ -n "${{ inputs.version }}" ]]; then

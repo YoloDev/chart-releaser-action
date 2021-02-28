@@ -31,6 +31,8 @@ Usage: $(basename "$0") <options>
     -u, --charts-repo-url    The GitHub Pages URL to the charts repo (default: https://<owner>.github.io/<repo>)
     -o, --owner              The repo owner
     -r, --repo               The repo name
+        --index-owner        The index repo owner
+        --index-repo         The index repo name
 EOF
 }
 
@@ -40,6 +42,8 @@ main() {
     local charts_dir=charts
     local owner=
     local repo=
+    local index_owner=
+    local index_repo=
     local charts_repo_url=
 
     parse_command_line "$@"
@@ -151,6 +155,26 @@ parse_command_line() {
                     exit 1
                 fi
                 ;;
+            --index-owner)
+                if [[ -n "${2:-}" ]]; then
+                    index_owner="$2"
+                    shift
+                else
+                    echo "ERROR: '--index-owner' cannot be empty." >&2
+                    show_help
+                    exit 1
+                fi
+                ;;
+            --index-repo)
+                if [[ -n "${2:-}" ]]; then
+                    index_repo="$2"
+                    shift
+                else
+                    echo "ERROR: '--index-repo' cannot be empty." >&2
+                    show_help
+                    exit 1
+                fi
+                ;;
             *)
                 break
                 ;;
@@ -173,6 +197,14 @@ parse_command_line() {
 
     if [[ -z "$charts_repo_url" ]]; then
         charts_repo_url="https://$owner.github.io/$repo"
+    fi
+
+    if [[ -z "$index_owner" ]]; then
+        index_owner="$owner"
+    fi
+
+    if [[ -z "$index_repo" ]]; then
+        index_repo="$repo"
     fi
 }
 
@@ -254,7 +286,7 @@ release_charts() {
 }
 
 update_index() {
-    local args=(-o "$owner" -r "$repo" -c "$charts_repo_url" --push)
+    local args=(-o "$index_owner" -r "$index_repo" -c "$charts_repo_url" --push)
     if [[ -n "$config" ]]; then
         args+=(--config "$config")
     fi
