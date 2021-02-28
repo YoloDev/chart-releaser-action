@@ -298,8 +298,13 @@ update_index() {
     echo 'Updating charts repo index...'
     cr index "${args[@]}"
 
+    local user_name=$(git config user.name)
+    local user_email=$(git config user.email)
+
     # git remote remove charts-index
     pushd .cr-index
+    git config user.name "$user_name"
+    git config user.email "$user_email"
     git add index.yaml
     echo '####### DEBUG ##########'
     echo '####### ls -la ##########'
