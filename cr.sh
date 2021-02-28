@@ -286,7 +286,7 @@ release_charts() {
 }
 
 update_index() {
-    git clone --branch gh-pages --depth 1 "https://token:${CR_INDEX_TOKEN:=$CR_TOKEN}@github.com/$index_owner/$index_repo.git" .cr-index
+    git clone --branch gh-pages --depth 1 "https://github.com/$index_owner/$index_repo" .cr-index
 
     local args=(-o "$owner" -r "$repo" -c "$charts_repo_url" --remote charts-index)
     if [[ -n "$config" ]]; then
@@ -296,21 +296,21 @@ update_index() {
     echo 'Updating charts repo index...'
     cr index "${args[@]}"
 
+    local PAT=${CR_INDEX_TOKEN:=$CR_TOKEN}
     local user_name=$(git config user.name)
     local user_email=$(git config user.email)
 
-    # git remote remove charts-index
     pushd .cr-index
     git config user.name "$user_name"
     git config user.email "$user_email"
-    # remove the http.extraheader from git config typically set by actions/checkout
-    git config -l | grep 'http\..*\.extraheader' | cut -d= -f1 | xargs -L1 git config --unset-all
     git add index.yaml
     if ! git diff --cached --quiet index.yaml; then
         echo 'Index updated, creating commit and pushing changes'
         git add index.yaml
         git commit -m 'Update index.yaml'
-        git push
+        GIT_TRACE=1 GIT_TRANSFER_TRACE=1 GIT_CURL_VERBOSE=1 git \ 
+            -c "http.https://github.com/.extraheader=" \
+            push "https://$PAT@github.com/$index_owner/$index_repo"
     else
         echo 'Index not updated, skipping commit'
     fi
