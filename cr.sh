@@ -288,7 +288,7 @@ release_charts() {
 update_index() {
     # git remote add charts-index "https://$index_owner:${CR_INDEX_TOKEN:=$CR_TOKEN}@github.com/$index_owner/$index_repo.git"
     # git fetch charts-index gh-pages
-    git clone --branch gh-pages --depth 0 "https://$index_owner:${CR_INDEX_TOKEN:=$CR_TOKEN}@github.com/$index_owner/$index_repo.git" .cr-index
+    git clone --branch gh-pages --depth 1 "https://$index_owner:${CR_INDEX_TOKEN:=$CR_TOKEN}@github.com/$index_owner/$index_repo.git" .cr-index
 
     local args=(-o "$owner" -r "$repo" -c "$charts_repo_url" --remote charts-index)
     if [[ -n "$config" ]]; then
