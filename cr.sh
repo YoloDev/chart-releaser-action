@@ -195,16 +195,16 @@ parse_command_line() {
         exit 1
     fi
 
-    if [[ -z "$charts_repo_url" ]]; then
-        charts_repo_url="https://$owner.github.io/$repo"
-    fi
-
     if [[ -z "$index_owner" ]]; then
         index_owner="$owner"
     fi
 
     if [[ -z "$index_repo" ]]; then
         index_repo="$repo"
+    fi
+
+    if [[ -z "$charts_repo_url" ]]; then
+        charts_repo_url="https://$index_owner.github.io/$index_repo"
     fi
 }
 
@@ -286,13 +286,17 @@ release_charts() {
 }
 
 update_index() {
-    local args=(-o "$index_owner" -r "$index_repo" -c "$charts_repo_url" --push)
+    git remote add charts-index "https://$index_owner:$CR_TOKEN/$index_owner/$index_repo.git"
+
+    local args=(-o "$owner" -r "$repo" -c "$charts_repo_url" --remote charts-index)
     if [[ -n "$config" ]]; then
         args+=(--config "$config")
     fi
 
     echo 'Updating charts repo index...'
     cr index "${args[@]}"
+
+    git remote remove charts-index
 }
 
 main "$@"
