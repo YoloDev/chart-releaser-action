@@ -308,7 +308,7 @@ update_index() {
         echo 'Index updated, creating commit and pushing changes'
         git add index.yaml
         git commit -m 'Update index.yaml'
-        GIT_TRACE=1 GIT_TRANSFER_TRACE=1 GIT_CURL_VERBOSE=1 git \
+        git \
             -c "http.https://github.com/.extraheader=" \
             push "https://$PAT@github.com/$index_owner/$index_repo"
     else
